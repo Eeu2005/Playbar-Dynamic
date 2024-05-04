@@ -2,8 +2,8 @@
     {
         "name":"Playbar-dynamic",
         "description":"Playbar com gradiente da musica atual com passada/Playbar with gradient with current song with past",
-        "preview":"./media/previewPequena.gif",
-        "main":"./dist/playbar-dynamic.js",
-        "readme":"./README.md"
+        "preview":"media/previewPequena.gif",
+        "main":"dist/playbar-dynamic.js",
+        "readme":"README.md"
     }
 ]
