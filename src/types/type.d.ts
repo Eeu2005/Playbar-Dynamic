@@ -15,3 +15,4 @@ export interface configply  {
 	corAtual: string;
 	corPassada: string;
 }
+ export type language= {[lingua:string]:string[]}

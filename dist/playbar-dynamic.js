@@ -4,8 +4,22 @@
         }
         var playbarDdynamic = (() => {
   // src/types/html.ts
-  var myhtml = `
+  var lingua = {
+    "pt-BR": ["Rota\xE7\xE3o do degrade (Em deg)", "cores", "tons das cores spicetify"],
+    "pt-PT": ["Rota\xE7\xE3o do degrade (Em deg)", "cores", "tons das cores spicetify"],
+    "es-ES": ["Rotation of gradient (deg)", "colors", "color shades of  Spicetify"]
+  };
+  function myhtml() {
+    let localidade = Spicetify.Locale.getLocale();
+    let linguaEscolhida = lingua[localidade] ? lingua[localidade] : lingua["es-ES"];
+    const html = `
 <style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
   input[type="range"] {
     width: calc(90% - 20px);
     appearance: auto;
@@ -13,17 +27,17 @@
   }
 
   input,
-  input:active,
-  input:focus-visible {
+  input:active {
     outline: none;
     border-radius: 2px;
     border: none;
   }
-  input:focus-visible{
-    outline:solid  1px var(--spice-text);
+
+  #numeros:focus {
+    border: solid 1px var(--spice-text);
   }
 
-  
+
   #numeros {
     margin-left: 10px;
     width: 60px;
@@ -42,10 +56,19 @@
     display: none;
   }
 
-  .sla {
+  .divCurva {
+    text-align: center;
+    justify-content: center;
+    align-items: center;
     display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  .divBotoes {
+    width: 100%;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
   }
 
   .myslider {
@@ -65,11 +88,12 @@
     background-color: var(--spice-main);
     color: var(--spice-text);
     border-radius: 5px;
+    margin-top: 50px;
   }
 
   #botao:active {
     background-color: var(--corAtual);
-    box-shadow: 0px 0px 17px 5px #404040;
+    box-shadow: 0px 0px 17px 5px #3f3f3f3b;
   }
 
   #colors {
@@ -99,15 +123,16 @@
   }
 
   .conteiner {
+    gap: 13px;
     display: flex;
     align-items: center;
     justify-content: space-around;
+    flex-wrap: wrap;
+    flex-direction: column;
+    position: relative;
   }
-.div{
-  display: flex;
-   gap: 15px;
-  align-items: center;
-}
+
+
   .myslider:before {
     background-color: #fff;
     bottom: 4px;
@@ -118,50 +143,69 @@
     transition: 0.4s;
     width: 20px;
   }
-.preview{
-  width:100%;
-  margin: 11px;
+
+  .preview {
+    width: 100%;
+    margin: 11px;
     border-radius: 2px;
     height: 40px;
-}
+  }
 
-  
+  .divSelect {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 5px;
+  }
 </style>
-<div class="sla">
-  <input type="range" max="360.5" value="document.querrySelector('#numeros').value" id="curva" />
-  <input type="number" max="360.5" value="document.querrySelector('#curva').value" id="numeros" />
-</div>
 <div class="conteiner">
-  <div>
-    <p>spicetify? </p>
-    <label for="inputCorSpice" id="switch">
-      <input type="checkbox" name="cor_1"
-        id="inputCorSpice"/>
-      <div class="myslider round"></div>
-    </label>
+  <div class="divCurva">
+    <p>${linguaEscolhida[0]} </p>
+    <input type="range" max="360.5" step="0.5" value="30" id="curva" />
+    <input type="number" max="360.5" id="numeros" />
   </div>
-  <div>
-    <p>3 Colors?</p>
-    <label for="tresColors" id="switch">
-      <input type="checkbox" name="" id="tresColors">
-    <div class="myslider round"></div>
-    </label>
+  <div class="divBotoes">
+    <div>
+      <p>spicetify? </p>
+      <label for="inputCorSpice" id="switch">
+        <input type="checkbox" name="cor_1" id="inputCorSpice" />
+        <div class="myslider round"></div>
+      </label>
+    </div>
+    <div>
+      <p>3 ${linguaEscolhida[1]}</p>
+      <label for="tresColors" id="switch">
+        <input type="checkbox" name="" id="tresColors">
+        <div class="myslider round"></div>
+      </label>
+    </div>
+    <div class="divSelect">
+      <p>${linguaEscolhida[2]}</p>
+      <select name="colors" id="colors">
+        <option value="DESATURATED">DESATURATED</option>
+        <option value="LIGHT_VIBRANT">LIGHT_VIBRANT</option>
+        <option value="undefined">PROMINENT</option>
+        <option value="VIBRANT">VIBRANT</option>
+        <option value="VIBRANT_NON_ALARMING">VIBRANT_NON_ALARMING</option>
+      </select>
+    </div>
   </div>
-  <select name="colors" id="colors">
-    <option value="DESATURATED">DESATURATED</option>
-    <option value="LIGHT_VIBRANT">LIGHT_VIBRANT</option>
-    <option value="undefined">PROMINENT</option>
-    <option value="VIBRANT">VIBRANT</option>
-    <option value="VIBRANT_NON_ALARMING">VIBRANT_NON_ALARMING</option>
-  </select>
+
+  <input type="button" id="botao" value="save" />
 </div>
-<input type="button" id="botao" value="save"/>
 <p>preview</p>`;
-  var svg = `<svg role="img" height="20" width="20" viewBox="0 0 16 16" fill="currentColor"><path d="M11.472.279L2.583 10.686l-.887 4.786 4.588-1.625L15.173 3.44 11.472.279zM5.698 12.995l-2.703.957.523-2.819v-.001l2.18 1.863zm-1.53-2.623l7.416-8.683 2.18 1.862-7.415 8.683-2.181-1.862z"></path>
-</svg> <path d="M11.472.279L2.583 10.686l-.887 4.786 4.588-1.625L15.173 3.44 11.472.279zM5.698 12.995l-2.703.957.523-2.819v-.001l2.18 1.863zm-1.53-2.623l7.416-8.683 2.18 1.862-7.415 8.683-2.181-1.862z"</path></svg>`;
+    return html;
+  }
+  var svg = `<svg role="img" height="20" width="20" viewBox="0 0 16 16" fill="currentColor">
+  <path
+    d="M11.472.279L2.583 10.686l-.887 4.786 4.588-1.625L15.173 3.44 11.472.279zM5.698 12.995l-2.703.957.523-2.819v-.001l2.18 1.863zm-1.53-2.623l7.416-8.683 2.18 1.862-7.415 8.683-2.181-1.862z">
+  </path>
+</svg>
+<path
+  d="M11.472.279L2.583 10.686l-.887 4.786 4.588-1.625L15.173 3.44 11.472.279zM5.698 12.995l-2.703.957.523-2.819v-.001l2.18 1.863zm-1.53-2.623l7.416-8.683 2.18 1.862-7.415 8.683-2.181-1.862z"
+  </path> </svg>`;
 
   // src/app.tsx
-  async function main() {
+  function main() {
     const rootStyle = document.createElement("style");
     document.head.appendChild(rootStyle);
     const { fetchExtractedColors } = Spicetify.GraphQL.Definitions;
@@ -186,6 +230,7 @@
       corAtual: "#0c5b95",
       corPassada: "#010001"
     };
+    Object.preventExtensions(playbarConfig);
     function update() {
       rootStyle2.innerHTML = `:root{--curva:${playbarConfig.curva}deg}`;
       rootStyle.innerHTML = `:root{--corAtual:${playbarConfig.corAtual};
@@ -195,10 +240,6 @@
     }
     async function esperarDOM() {
       let btn = document.querySelector("#botao");
-      btn.addEventListener("click", () => {
-        update();
-        meuEstilo.innerHTML = `.Root__now-playing-bar,.preview{background-image: var( ${playbarConfig.inputCorSpice ? "--degradeCorSpice" : playbarConfig.input3color ? "--degrade3colors" : "--degradeCorPassada"}); }`;
-      });
       let selectColors = document.querySelector("#colors");
       let curva = document.querySelector("#curva");
       let numeros = document.querySelector("#numeros");
@@ -207,48 +248,64 @@
       input3color.checked = playbarConfig.input3color;
       inputCorSpice.checked = playbarConfig.inputCorSpice;
       selectColors.value = playbarConfig.escolhaSpice;
+      btn.addEventListener("click", () => {
+        update();
+        meuEstilo.innerHTML = `.Root__now-playing-bar,.preview{background-image: var( ${playbarConfig.inputCorSpice ? "--degradeCorSpice" : playbarConfig.input3color ? "--degrade3colors" : "--degradeCorPassada"}); }`;
+      });
       !curva && !numeros ? setInterval(esperarDOM, 1e4) : curva.value = String(playbarConfig.curva);
       selectColors.addEventListener("input", () => {
         playbarConfig.escolhaSpice = selectColors.value;
       });
+      function selectState() {
+        if (playbarConfig.input3color || playbarConfig.inputCorSpice) {
+          selectColors.style.display = "block";
+          document.querySelector(".divSelect>p").style.display = "block";
+        } else {
+          selectColors.style.display = "none";
+          document.querySelector(".divSelect>p").style.display = "none";
+        }
+      }
+      selectState();
       input3color.addEventListener("input", () => {
         playbarConfig["input3color"] = input3color.checked;
         playbarConfig["inputCorSpice"] = false;
         inputCorSpice.checked = false;
+        selectState();
       });
       inputCorSpice.addEventListener("input", () => {
         playbarConfig["inputCorSpice"] = inputCorSpice.checked;
         playbarConfig["input3color"] = false;
         input3color.checked = false;
+        selectState();
       });
       numeros.value = curva.value;
-      numeros == null ? void 0 : numeros.addEventListener("input", () => {
+      numeros.addEventListener("input", () => {
         curva.value = numeros.value;
         playbarConfig.curva = curva.value;
       });
-      curva == null ? void 0 : curva.addEventListener("input", () => {
+      curva.addEventListener("input", () => {
         numeros.value = curva.value;
         playbarConfig.curva = curva.value;
       });
     }
     function meuElemento() {
-      var newElement = document.createElement("div");
+      let newElement = document.createElement("div");
       newElement.classList.add("preview");
       return newElement.outerHTML;
     }
+    meuElemento();
     const button = new Spicetify.Playbar.Button(
       "Play Config",
       svg,
       () => {
-        var _a;
         button.active = true;
         Spicetify.PopupModal.display({
           title: "PlayBar Config",
-          content: myhtml + meuElemento(),
+          content: myhtml() + meuElemento(),
           isLarge: true
         });
         esperarDOM();
-        (_a = document.querySelector(".GenericModal__overlay")) == null ? void 0 : _a.addEventListener("click", () => button.active = false);
+        document.querySelector(".GenericModal__overlay").addEventListener("click", () => button.active = false);
       },
       false
     );
@@ -293,7 +350,7 @@
   }
   var app_default = main;
 
-
+  // ../../../Users/emanuel/AppData/Local/Temp/spicetify-creator/index.jsx
   (async () => {
     await app_default();
   })();

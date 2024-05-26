@@ -1,6 +1,6 @@
 import { myhtml, svg } from "./types/html";
 import { configply } from "./types/type";
-async function main() {
+function main() {
 	const rootStyle = document.createElement("style");
 	document.head.appendChild(rootStyle);
 	const { fetchExtractedColors } = Spicetify.GraphQL.Definitions;
@@ -16,7 +16,7 @@ async function main() {
 			LIGHT_VIBRANT: "#fe01a0",
 			DARK_VIBRANT: "#fe01a0",
 			VIBRANT_NON_ALARMING: "#fe01a0",
-			PROMINENT:'#010001'
+			PROMINENT: "#010001"
 		},
 		escolhaSpice: "DESATURATED",
 		input3color: false,
@@ -25,7 +25,7 @@ async function main() {
 		corAtual: "#0c5b95",
 		corPassada: "#010001"
 	};
-
+	Object.preventExtensions(playbarConfig);
 	function update(): void {
 		rootStyle2.innerHTML = `:root{--curva:${playbarConfig.curva}deg}`;
 		rootStyle.innerHTML = `:root{--corAtual:${playbarConfig.corAtual};
@@ -35,12 +35,6 @@ async function main() {
 	}
 	async function esperarDOM() {
 		let btn: HTMLInputElement = document.querySelector("#botao") as HTMLInputElement;
-		btn.addEventListener("click", () => {
-			update();
-			meuEstilo.innerHTML = `.Root__now-playing-bar,.preview{background-image: var( ${
-				playbarConfig.inputCorSpice ? "--degradeCorSpice" : playbarConfig.input3color ? "--degrade3colors" : "--degradeCorPassada"
-			}); }`;
-		});
 		let selectColors: HTMLSelectElement = document.querySelector("#colors");
 		let curva: HTMLInputElement = document.querySelector("#curva");
 		let numeros: HTMLInputElement = document.querySelector("#numeros");
@@ -49,36 +43,59 @@ async function main() {
 		input3color.checked = playbarConfig.input3color;
 		inputCorSpice.checked = playbarConfig.inputCorSpice;
 		selectColors.value = playbarConfig.escolhaSpice;
+		btn.addEventListener("click", () => {
+			update();
+			meuEstilo.innerHTML = `.Root__now-playing-bar,.preview{background-image: var( ${
+				playbarConfig.inputCorSpice ? "--degradeCorSpice" : playbarConfig.input3color ? "--degrade3colors" : "--degradeCorPassada"
+			}); }`;
+		});
 		!curva && !numeros ? setInterval(esperarDOM, 10000) : (curva.value = String(playbarConfig.curva));
 		selectColors.addEventListener("input", () => {
 			playbarConfig.escolhaSpice = selectColors.value as typeof playbarConfig.escolhaSpice;
 		});
+
+		function selectState() {
+			if (playbarConfig.input3color || playbarConfig.inputCorSpice) {
+				selectColors.style.display = "block";
+				//@ts-ignore
+				document.querySelector(".divSelect>p").style.display = "block";
+			} else {
+				selectColors.style.display = "none";
+				//@ts-ignore
+				document.querySelector(".divSelect>p").style.display = "none";
+			}
+		}
+		selectState();
+
 		input3color.addEventListener("input", () => {
 			playbarConfig["input3color"] = input3color.checked;
 			playbarConfig["inputCorSpice"] = false;
 			inputCorSpice.checked = false;
+			selectState();
 		});
 		inputCorSpice.addEventListener("input", () => {
 			playbarConfig["inputCorSpice"] = inputCorSpice.checked;
 			playbarConfig["input3color"] = false;
 			input3color.checked = false;
+			selectState();
 		});
 		numeros.value = curva.value;
-		numeros?.addEventListener("input", () => {
+		numeros.addEventListener("input", () => {
 			curva.value = numeros.value;
 			playbarConfig.curva = curva.value;
 		});
-		curva?.addEventListener("input", () => {
+		curva.addEventListener("input", () => {
 			numeros.value = curva.value;
 			playbarConfig.curva = curva.value;
 		});
 	}
-
-	function meuElemento() {
-		var newElement = document.createElement("div");
+	/* Apenas um pequeno teste */
+	function meuElemento(): string {
+		let newElement = document.createElement("div");
 		newElement.classList.add("preview");
 		return newElement.outerHTML;
 	}
+	meuElemento();
 	const button = new Spicetify.Playbar.Button(
 		"Play Config",
 		svg,
@@ -86,11 +103,11 @@ async function main() {
 			button.active = true;
 			Spicetify.PopupModal.display({
 				title: "PlayBar Config",
-				content: myhtml + meuElemento(),
+				content: myhtml() + meuElemento(),
 				isLarge: true
 			});
 			esperarDOM();
-			document.querySelector(".GenericModal__overlay")?.addEventListener("click", () => (button.active = false));
+			document.querySelector(".GenericModal__overlay").addEventListener("click", () => (button.active = false));
 		},
 		false
 	);
@@ -105,14 +122,14 @@ async function main() {
 		const catchColors = await Spicetify.GraphQL.Request(fetchExtractedColors, { uris: [uripassada, uriAtual] });
 		const coresPassada = catchColors.data.extractedColors[0].colorDark.hex;
 		const coresAtual = catchColors.data["extractedColors"][1].colorDark.hex;
-		let coresSpice = await Spicetify.colorExtractor(uriAtual) || {
+		let coresSpice = (await Spicetify.colorExtractor(uriAtual)) || {
 			VIBRANT: "#fe01a0",
 			undefined: "#010001",
 			DESATURATED: "#0c5b95",
 			LIGHT_VIBRANT: "#fe01a0",
 			DARK_VIBRANT: "#fe01a0",
 			VIBRANT_NON_ALARMING: "#fe01a0",
-			PROMINENT:"#010001"
+			PROMINENT: "#010001"
 		};
 
 		playbarConfig.uriPassada = uripassada;
@@ -123,13 +140,14 @@ async function main() {
 	});
 
 	meuEstilo.innerHTML = `.Root__now-playing-bar,.preview{
-		background-image: var( ${playbarConfig.inputCorSpice ? "--degradeCorSpice" : playbarConfig.input3color ? "--degrade3colors" : "--degradeCorPassada"
-	}); }`;
+		background-image: var( ${
+			playbarConfig.inputCorSpice ? "--degradeCorSpice" : playbarConfig.input3color ? "--degrade3colors" : "--degradeCorPassada"
+		}); }`;
 
 	function body() {
 		let myBody = document.querySelector("body");
 		myBody
-		?myBody.setAttribute(
+			? myBody.setAttribute(
 					"style",
 					`--degradeCorPassada:linear-gradient(var(--curva), var(--corAtual),var(--corPassada));
 						--degradeCorSpice:linear-gradient(var(--curva), var(--corAtual),var(--SpiceColors));
