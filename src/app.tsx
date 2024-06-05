@@ -104,7 +104,6 @@ function main() {
 				content: myhtml() + meuElemento(),
 				isLarge: true
 			});
-			this.update = update;
 			esperarDOM();
 			document.querySelector(".GenericModal__overlay").addEventListener("click", () => (button.active = false));
 		},
@@ -124,7 +123,7 @@ function main() {
 		playbarConfig.corAtual = coresAtual;
 		playbarConfig.corPassada = coresPassada;
 		playbarConfig.corSpice = coresSpice;
-		console.log( `Pegando Uris: Cod Musica Atual${uriAtual} cod musica passado ${uripassada}`)
+		console.log(`Pegando Uris: Cod Musica Atual ${uriAtual} cod musica passado ${uripassada}`);
 	}
 	Spicetify.Player.addEventListener("songchange", async () => {
 		await fetchUris();
