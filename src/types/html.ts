@@ -8,13 +8,18 @@ const lingua: language = {
 export function myhtml() {
 	let localidade: string = Spicetify.Locale.getLocale();
 	let linguaEscolhida = lingua[localidade] ? lingua[localidade] : lingua["es-ES"];
-	const html: string = `
-<style>
+	const html: string = `<style>
   * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    color: var(--spice-subtext) !important;
   }
+  input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
 
   input[type="range"] {
     width: calc(90% - 20px);
@@ -24,6 +29,7 @@ export function myhtml() {
 
   input,
   input:active {
+    padding: 0 !important;
     outline: none;
     border-radius: 2px;
     border: none;
@@ -38,7 +44,7 @@ export function myhtml() {
     margin-left: 10px;
     width: 60px;
     background: var(--spice-main);
-    color: var(--spice-text);
+    
   }
 
   #switch {
@@ -82,13 +88,12 @@ export function myhtml() {
     height: 30px;
     width: 50px;
     background-color: var(--spice-main);
-    color: var(--spice-text);
     border-radius: 5px;
     margin-top: 50px;
   }
 
   #botao:active {
-    background-color: var(--corAtual);
+    background-color: var(--corAtual) !important;
     box-shadow: 0px 0px 17px 5px #3f3f3f3b;
   }
 
@@ -103,7 +108,7 @@ export function myhtml() {
   }
 
   input:checked+.myslider {
-    background-color: var(--spice-main);
+    background-color: var(--corAtual);
   }
 
   input:checked+.myslider:before {
