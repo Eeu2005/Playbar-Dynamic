@@ -1,13 +1,14 @@
-export interface configply  {
+export interface configply {
 	uriPassada: string;
 	uriAtual: string;
-	corSpice: { 
+	corSpice: {
 		DESATURATED: string;
-		 LIGHT_VIBRANT: string;
-		  PROMINENT?: string;
-		   VIBRANT: string;
-		    VIBRANT_NON_ALARMING: string;
-			undefined?:string };
+		LIGHT_VIBRANT: string;
+		PROMINENT?: string;
+		VIBRANT: string;
+		VIBRANT_NON_ALARMING: string;
+		undefined?: string;
+	};
 	escolhaSpice: "undefined" | "DESATURATED" | "LIGHT_VIBRANT" | "PROMINENT" | "VIBRANT_NON_ALARMING" | "VIBRANT";
 	input3color: boolean;
 	inputCorSpice: boolean;
@@ -15,4 +16,4 @@ export interface configply  {
 	corAtual: string;
 	corPassada: string;
 }
- export type language= {[lingua:string]:string[]}
+export type language = { [lingua: string]: string[] };

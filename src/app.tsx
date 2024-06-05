@@ -27,10 +27,15 @@ function main() {
 	};
 	Object.preventExtensions(playbarConfig);
 	function update(): void {
+		console.log(playbarConfig);
 		rootStyle2.innerHTML = `:root{--curva:${playbarConfig.curva}deg}`;
 		rootStyle.innerHTML = `:root{--corAtual:${playbarConfig.corAtual};
     --corPassada:${playbarConfig.corPassada};
      --SpiceColors:${playbarConfig.corSpice[playbarConfig.escolhaSpice]};}`;
+		meuEstilo.innerHTML = `.main-nowPlayingBar-container,.Root__now-playing-bar,.preview{
+	background-image: var( ${
+		playbarConfig.inputCorSpice ? "--degradeCorSpice" : playbarConfig.input3color ? "--degrade3colors" : "--degradeCorPassada"
+	}); }`;
 		Spicetify.LocalStorage.set("playbarConfig", JSON.stringify(playbarConfig));
 	}
 	async function esperarDOM() {
@@ -43,17 +48,10 @@ function main() {
 		input3color.checked = playbarConfig.input3color;
 		inputCorSpice.checked = playbarConfig.inputCorSpice;
 		selectColors.value = playbarConfig.escolhaSpice;
-		btn.addEventListener("click", () => {
-			update();
-			meuEstilo.innerHTML = `.Root__now-playing-bar,.preview{background-image: var( ${
-				playbarConfig.inputCorSpice ? "--degradeCorSpice" : playbarConfig.input3color ? "--degrade3colors" : "--degradeCorPassada"
-			}); }`;
-		});
-		!curva && !numeros ? setInterval(esperarDOM, 10000) : (curva.value = String(playbarConfig.curva));
-		selectColors.addEventListener("input", () => {
-			playbarConfig.escolhaSpice = selectColors.value as typeof playbarConfig.escolhaSpice;
-		});
-
+		curva.value = "" + playbarConfig.curva;
+		numeros.value = "" + playbarConfig.curva;
+		btn.addEventListener("click", update);
+		selectColors.addEventListener("input", () => (playbarConfig.escolhaSpice = selectColors.value as typeof playbarConfig.escolhaSpice));
 		function selectState() {
 			if (playbarConfig.input3color || playbarConfig.inputCorSpice) {
 				selectColors.style.display = "block";
@@ -106,43 +104,34 @@ function main() {
 				content: myhtml() + meuElemento(),
 				isLarge: true
 			});
+			this.update = update;
 			esperarDOM();
 			document.querySelector(".GenericModal__overlay").addEventListener("click", () => (button.active = false));
 		},
 		false
 	);
-
 	const meuEstilo = document.createElement("style");
 	document.head.appendChild(meuEstilo);
-	let uriAtual = playbarConfig.uriPassada;
-
-	Spicetify.Player.addEventListener("songchange", async () => {
+	let uriAtual = playbarConfig.uriAtual;
+	async function fetchUris() {
 		let uripassada = uriAtual;
 		uriAtual = Spicetify.Player.data.item?.images[0].url || playbarConfig.uriAtual;
 		const catchColors = await Spicetify.GraphQL.Request(fetchExtractedColors, { uris: [uripassada, uriAtual] });
 		const coresPassada = catchColors.data.extractedColors[0].colorDark.hex;
-		const coresAtual = catchColors.data["extractedColors"][1].colorDark.hex;
-		let coresSpice = (await Spicetify.colorExtractor(uriAtual)) || {
-			VIBRANT: "#fe01a0",
-			undefined: "#010001",
-			DESATURATED: "#0c5b95",
-			LIGHT_VIBRANT: "#fe01a0",
-			DARK_VIBRANT: "#fe01a0",
-			VIBRANT_NON_ALARMING: "#fe01a0",
-			PROMINENT: "#010001"
-		};
-
+		const coresAtual = catchColors.data.extractedColors[1].colorDark.hex;
+		const coresSpice = await Spicetify.colorExtractor(uriAtual);
 		playbarConfig.uriPassada = uripassada;
 		playbarConfig.corAtual = coresAtual;
 		playbarConfig.corPassada = coresPassada;
 		playbarConfig.corSpice = coresSpice;
+		console.log( `Pegando Uris: Cod Musica Atual${uriAtual} cod musica passado ${uripassada}`)
+	}
+	Spicetify.Player.addEventListener("songchange", async () => {
+		await fetchUris();
 		update();
 	});
 
-	meuEstilo.innerHTML = `.Root__now-playing-bar,.preview{
-		background-image: var( ${
-			playbarConfig.inputCorSpice ? "--degradeCorSpice" : playbarConfig.input3color ? "--degrade3colors" : "--degradeCorPassada"
-		}); }`;
+	update();
 
 	function body() {
 		let myBody = document.querySelector("body");
@@ -158,6 +147,9 @@ function main() {
 
 	body();
 	update();
+	globalThis.fetchUris = fetchUris;
+	globalThis.update = update;
+	globalThis.playbarConfig = playbarConfig;
 }
 
 export default main;
