@@ -6,7 +6,7 @@ Uma extensão [Spicetify](https://github.com/spicetify/spicetify-cli) que permit
 
 An extension for the [Spicetify](https://github.com/spicetify/spicetify-cli) that allows you to customize the play-bar in a gradient of the current song with the past(or current song but with different color shades)
 
-###### don´t know English
+###### don't know English
 
 ## Preview
 
