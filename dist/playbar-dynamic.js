@@ -3,7 +3,7 @@
           await new Promise(resolve => setTimeout(resolve, 10));
         }
         var playbarDdynamic = (() => {
-  // src/types/html.ts
+  // src/html.ts
   var lingua = {
     "pt-BR": ["Rota\xE7\xE3o do degrade (Em deg)", "cores", "tons das cores spicetify"],
     "pt-PT": ["Rota\xE7\xE3o do degrade (Em deg)", "cores", "tons das cores spicetify"],
@@ -13,17 +13,11 @@
     let localidade = Spicetify.Locale.getLocale();
     let linguaEscolhida = lingua[localidade] ? lingua[localidade] : lingua["es-ES"];
     const html = `<style>
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    color: var(--spice-subtext) !important;
-  }
   input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
+  input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
 
   input[type="range"] {
     width: calc(90% - 20px);
@@ -43,12 +37,11 @@ input::-webkit-inner-spin-button {
     border: solid 1px var(--spice-text);
   }
 
-
   #numeros {
     margin-left: 10px;
     width: 60px;
     background: var(--spice-main);
-    
+
   }
 
   #switch {
@@ -186,11 +179,6 @@ input::-webkit-inner-spin-button {
     <div class="divSelect">
       <p>${linguaEscolhida[2]}</p>
       <select name="colors" id="colors">
-        <option value="DESATURATED">DESATURATED</option>
-        <option value="LIGHT_VIBRANT">LIGHT_VIBRANT</option>
-        <option value="undefined">PROMINENT</option>
-        <option value="VIBRANT">VIBRANT</option>
-        <option value="VIBRANT_NON_ALARMING">VIBRANT_NON_ALARMING</option>
       </select>
     </div>
   </div>
@@ -216,7 +204,7 @@ input::-webkit-inner-spin-button {
     const { fetchExtractedColors } = Spicetify.GraphQL.Definitions;
     const rootStyle2 = document.createElement("style");
     document.head.appendChild(rootStyle2);
-    let playbarConfig = JSON.parse(Spicetify.LocalStorage.get("playbarConfig")) || {
+    const playbarConfig = JSON.parse(Spicetify.LocalStorage.get("playbarConfig")) || {
       uriPassada: "https://i.scdn.co/image/ab67616d0000b2735011018cca4aa7091e08ae93",
       uriAtual: "https://i.scdn.co/image/ab67616d0000b27342ffc7773e7f4ea48e5606a8",
       corSpice: {
@@ -235,16 +223,16 @@ input::-webkit-inner-spin-button {
       corAtual: "#0c5b95",
       corPassada: "#010001"
     };
-    Object.preventExtensions(playbarConfig);
     function update() {
-      console.log(playbarConfig);
       rootStyle2.innerHTML = `:root{--curva:${playbarConfig.curva}deg}`;
       rootStyle.innerHTML = `:root{--corAtual:${playbarConfig.corAtual};
     --corPassada:${playbarConfig.corPassada};
      --SpiceColors:${playbarConfig.corSpice[playbarConfig.escolhaSpice]};}`;
       meuEstilo.innerHTML = `.main-nowPlayingBar-container,.Root__now-playing-bar,.preview{
 	background-image: var( ${playbarConfig.inputCorSpice ? "--degradeCorSpice" : playbarConfig.input3color ? "--degrade3colors" : "--degradeCorPassada"}); }`;
+      console.log(`[playbar-dyn] atualizando cores ${playbarConfig.corAtual} | ${playbarConfig.corPassada} | ${playbarConfig.corSpice[playbarConfig.escolhaSpice]}`);
       Spicetify.LocalStorage.set("playbarConfig", JSON.stringify(playbarConfig));
+      return [rootStyle, rootStyle2, meuEstilo];
     }
     async function esperarDOM() {
       let btn = document.querySelector("#botao");
@@ -256,8 +244,15 @@ input::-webkit-inner-spin-button {
       input3color.checked = playbarConfig.input3color;
       inputCorSpice.checked = playbarConfig.inputCorSpice;
       selectColors.value = playbarConfig.escolhaSpice;
-      curva.value = "" + playbarConfig.curva;
-      numeros.value = "" + playbarConfig.curva;
+      curva.value = playbarConfig.curva;
+      numeros.value = playbarConfig.curva;
+      for (let e of Object.keys(playbarConfig.corSpice)) {
+        let opt = document.createElement("option");
+        opt.innerText = e == "undefined" ? "PROEMINENT" : e;
+        opt.value = e;
+        opt.selected = opt.value == playbarConfig.escolhaSpice;
+        selectColors.options.add(opt);
+      }
       btn.addEventListener("click", update);
       selectColors.addEventListener("input", () => playbarConfig.escolhaSpice = selectColors.value);
       function selectState() {
@@ -297,7 +292,6 @@ input::-webkit-inner-spin-button {
       newElement.classList.add("preview");
       return newElement.outerHTML;
     }
-    meuElemento();
     const button = new Spicetify.Playbar.Button(
       "Play Config",
       svg,
@@ -308,7 +302,6 @@ input::-webkit-inner-spin-button {
           content: myhtml() + meuElemento(),
           isLarge: true
         });
-        this.update = update;
         esperarDOM();
         document.querySelector(".GenericModal__overlay").addEventListener("click", () => button.active = false);
       },
@@ -316,7 +309,7 @@ input::-webkit-inner-spin-button {
     );
     const meuEstilo = document.createElement("style");
     document.head.appendChild(meuEstilo);
-    let uriAtual = playbarConfig.uriAtual;
+    let uriAtual = playbarConfig.uriPassada;
     async function fetchUris() {
       var _a;
       let uripassada = uriAtual;
@@ -329,7 +322,8 @@ input::-webkit-inner-spin-button {
       playbarConfig.corAtual = coresAtual;
       playbarConfig.corPassada = coresPassada;
       playbarConfig.corSpice = coresSpice;
-      console.log(`Pegando Uris: Cod Musica Atual${uriAtual} cod musica passado ${uripassada}`);
+      console.log(`[playbar-dyn]Pegando Uris: Cod Musica Atual ${uriAtual} cod musica passado ${uripassada}`);
+      return { coresAtual, coresPassada, coresSpice };
     }
     Spicetify.Player.addEventListener("songchange", async () => {
       await fetchUris();
@@ -338,12 +332,18 @@ input::-webkit-inner-spin-button {
     update();
     function body() {
       let myBody = document.querySelector("body");
-      myBody ? myBody.setAttribute(
-        "style",
-        `--degradeCorPassada:linear-gradient(var(--curva), var(--corAtual),var(--corPassada));
+      let id;
+      if (myBody) {
+        clearInterval(id);
+        myBody.setAttribute(
+          "style",
+          `--degradeCorPassada:linear-gradient(var(--curva), var(--corAtual),var(--corPassada));
 						--degradeCorSpice:linear-gradient(var(--curva), var(--corAtual),var(--SpiceColors));
 						--degrade3colors:linear-gradient(var(--curva), var(--corAtual),var(--SpiceColors),var(--corPassada));`
-      ) : setInterval(body, 1e3);
+        );
+      } else {
+        id = setInterval(body, 100);
+      }
     }
     body();
     update();

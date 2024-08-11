@@ -1,4 +1,4 @@
-import { myhtml, svg } from "./types/html";
+import { myhtml, svg } from "./html";
 import { configply } from "./types/type";
 function main() {
 	const rootStyle = document.createElement("style");
@@ -6,7 +6,7 @@ function main() {
 	const { fetchExtractedColors } = Spicetify.GraphQL.Definitions;
 	const rootStyle2 = document.createElement("style");
 	document.head.appendChild(rootStyle2);
-	let playbarConfig: configply = JSON.parse(Spicetify.LocalStorage.get("playbarConfig")) || {
+	const  playbarConfig: configply = JSON.parse(Spicetify.LocalStorage.get("playbarConfig")) || {
 		uriPassada: "https://i.scdn.co/image/ab67616d0000b2735011018cca4aa7091e08ae93",
 		uriAtual: "https://i.scdn.co/image/ab67616d0000b27342ffc7773e7f4ea48e5606a8",
 		corSpice: {
@@ -25,9 +25,8 @@ function main() {
 		corAtual: "#0c5b95",
 		corPassada: "#010001"
 	};
-	Object.preventExtensions(playbarConfig);
-	function update(): void {
-		console.log(playbarConfig);
+	/*porque?*/
+	function update(): HTMLStyleElement[] {
 		rootStyle2.innerHTML = `:root{--curva:${playbarConfig.curva}deg}`;
 		rootStyle.innerHTML = `:root{--corAtual:${playbarConfig.corAtual};
     --corPassada:${playbarConfig.corPassada};
@@ -36,10 +35,12 @@ function main() {
 	background-image: var( ${
 		playbarConfig.inputCorSpice ? "--degradeCorSpice" : playbarConfig.input3color ? "--degrade3colors" : "--degradeCorPassada"
 	}); }`;
+		console.log(`[playbar-dyn] atualizando cores ${playbarConfig.corAtual} | ${playbarConfig.corPassada} | ${playbarConfig.corSpice[playbarConfig.escolhaSpice]}` );
 		Spicetify.LocalStorage.set("playbarConfig", JSON.stringify(playbarConfig));
+		 return [rootStyle,rootStyle2,meuEstilo]
 	}
 	async function esperarDOM() {
-		let btn: HTMLInputElement = document.querySelector("#botao") as HTMLInputElement;
+		let btn: HTMLInputElement = document.querySelector("#botao")
 		let selectColors: HTMLSelectElement = document.querySelector("#colors");
 		let curva: HTMLInputElement = document.querySelector("#curva");
 		let numeros: HTMLInputElement = document.querySelector("#numeros");
@@ -48,8 +49,15 @@ function main() {
 		input3color.checked = playbarConfig.input3color;
 		inputCorSpice.checked = playbarConfig.inputCorSpice;
 		selectColors.value = playbarConfig.escolhaSpice;
-		curva.value = "" + playbarConfig.curva;
-		numeros.value = "" + playbarConfig.curva;
+		curva.value = playbarConfig.curva;
+		numeros.value = playbarConfig.curva;
+		for (let e of Object.keys(playbarConfig.corSpice)) {
+			let opt = document.createElement("option");
+			opt.innerText = e == "undefined" ? "PROEMINENT" : e;
+			opt.value = e
+			opt.selected= opt.value==playbarConfig.escolhaSpice
+			selectColors.options.add(opt);
+		}
 		btn.addEventListener("click", update);
 		selectColors.addEventListener("input", () => (playbarConfig.escolhaSpice = selectColors.value as typeof playbarConfig.escolhaSpice));
 		function selectState() {
@@ -64,7 +72,6 @@ function main() {
 			}
 		}
 		selectState();
-
 		input3color.addEventListener("input", () => {
 			playbarConfig["input3color"] = input3color.checked;
 			playbarConfig["inputCorSpice"] = false;
@@ -93,7 +100,7 @@ function main() {
 		newElement.classList.add("preview");
 		return newElement.outerHTML;
 	}
-	meuElemento();
+	
 	const button = new Spicetify.Playbar.Button(
 		"Play Config",
 		svg,
@@ -111,7 +118,7 @@ function main() {
 	);
 	const meuEstilo = document.createElement("style");
 	document.head.appendChild(meuEstilo);
-	let uriAtual = playbarConfig.uriAtual;
+	let uriAtual = playbarConfig.uriPassada;
 	async function fetchUris() {
 		let uripassada = uriAtual;
 		uriAtual = Spicetify.Player.data.item?.images[0].url || playbarConfig.uriAtual;
@@ -123,7 +130,8 @@ function main() {
 		playbarConfig.corAtual = coresAtual;
 		playbarConfig.corPassada = coresPassada;
 		playbarConfig.corSpice = coresSpice;
-		console.log(`Pegando Uris: Cod Musica Atual ${uriAtual} cod musica passado ${uripassada}`);
+		console.log(`[playbar-dyn]Pegando Uris: Cod Musica Atual ${uriAtual} cod musica passado ${uripassada}`);
+		return { coresAtual,coresPassada,coresSpice}
 	}
 	Spicetify.Player.addEventListener("songchange", async () => {
 		await fetchUris();
@@ -134,14 +142,18 @@ function main() {
 
 	function body() {
 		let myBody = document.querySelector("body");
-		myBody
-			? myBody.setAttribute(
-					"style",
-					`--degradeCorPassada:linear-gradient(var(--curva), var(--corAtual),var(--corPassada));
+		let id: number
+		if(myBody){
+			clearInterval(id)
+			myBody.setAttribute(
+				"style",
+				`--degradeCorPassada:linear-gradient(var(--curva), var(--corAtual),var(--corPassada));
 						--degradeCorSpice:linear-gradient(var(--curva), var(--corAtual),var(--SpiceColors));
 						--degrade3colors:linear-gradient(var(--curva), var(--corAtual),var(--SpiceColors),var(--corPassada));`
-			  )
-			: setInterval(body, 1000);
+			);
+		}else{
+			id = setInterval(body,100)
+		}
 	}
 
 	body();

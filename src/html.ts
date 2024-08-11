@@ -1,4 +1,4 @@
-import { language } from "./type";
+import { language } from "./types/type";
 const lingua: language = {
 	"pt-BR": ["Rotação do degrade (Em deg)", "cores", "tons das cores spicetify"],
 	"pt-PT": ["Rotação do degrade (Em deg)", "cores", "tons das cores spicetify"],
@@ -9,17 +9,11 @@ export function myhtml() {
 	let localidade: string = Spicetify.Locale.getLocale();
 	let linguaEscolhida = lingua[localidade] ? lingua[localidade] : lingua["es-ES"];
 	const html: string = `<style>
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    color: var(--spice-subtext) !important;
-  }
   input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
+  input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
 
   input[type="range"] {
     width: calc(90% - 20px);
@@ -39,12 +33,11 @@ input::-webkit-inner-spin-button {
     border: solid 1px var(--spice-text);
   }
 
-
   #numeros {
     margin-left: 10px;
     width: 60px;
     background: var(--spice-main);
-    
+
   }
 
   #switch {
@@ -182,11 +175,6 @@ input::-webkit-inner-spin-button {
     <div class="divSelect">
       <p>${linguaEscolhida[2]}</p>
       <select name="colors" id="colors">
-        <option value="DESATURATED">DESATURATED</option>
-        <option value="LIGHT_VIBRANT">LIGHT_VIBRANT</option>
-        <option value="undefined">PROMINENT</option>
-        <option value="VIBRANT">VIBRANT</option>
-        <option value="VIBRANT_NON_ALARMING">VIBRANT_NON_ALARMING</option>
       </select>
     </div>
   </div>
