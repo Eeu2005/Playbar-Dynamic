@@ -12,8 +12,32 @@ export interface configply {
 	escolhaSpice: "undefined" | "DESATURATED" | "LIGHT_VIBRANT" | "PROMINENT" | "VIBRANT_NON_ALARMING" | "VIBRANT";
 	input3color: boolean;
 	inputCorSpice: boolean;
-	curva: string | number;
+	curva: string ;
 	corAtual: string;
 	corPassada: string;
 }
+
 export type language = { [lingua: string]: string[] };
+export interface fectcolors {
+	data:       Data;
+	extensions: Extensions;
+}
+
+export interface Data {
+	extractedColors: ExtractedColor[];
+}
+
+export interface ExtractedColor {
+	__typename: string;
+	colorDark:  Color;
+	colorLight: Color;
+	colorRaw:   Color;
+}
+
+export interface Color {
+	hex:        string;
+	isFallback: boolean;
+}
+
+export interface Extensions {
+}
