@@ -1,4 +1,4 @@
-export interface configply {
+export interface Configply {
 	uriPassada: string;
 	uriAtual: string;
 	corSpice: {
@@ -9,35 +9,53 @@ export interface configply {
 		VIBRANT_NON_ALARMING: string;
 		undefined?: string;
 	};
-	escolhaSpice: "undefined" | "DESATURATED" | "LIGHT_VIBRANT" | "PROMINENT" | "VIBRANT_NON_ALARMING" | "VIBRANT";
+	escolhaSpice: Escolhas
 	input3color: boolean;
 	inputCorSpice: boolean;
 	curva: string ;
 	corAtual: string;
 	corPassada: string;
 }
+type Escolhas =
+  | "undefined"
+  | "DESATURATED"
+  | "LIGHT_VIBRANT"
+  | "PROMINENT"
+  | "VIBRANT_NON_ALARMING"
+  | "VIBRANT";
 
 export type language = { [lingua: string]: string[] };
-export interface fectcolors {
-	data:       Data;
-	extensions: Extensions;
-}
 
-export interface Data {
-	extractedColors: ExtractedColor[];
-}
 
-export interface ExtractedColor {
-	__typename: string;
-	colorDark:  Color;
-	colorLight: Color;
-	colorRaw:   Color;
+interface DataColorsTrack {
+    "data": {
+        "trackUnion": {
+            "__typename": string,
+            "albumOfTrack": {
+                "coverArt": {
+                    "extractedColors": {
+                        "colorDark": {
+                            "hex": string
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "extensions": {}
 }
-
-export interface Color {
-	hex:        string;
-	isFallback: boolean;
-}
-
-export interface Extensions {
+interface DataColorsEpisode {
+    "data": {
+        "episodeUnionV2": {
+            "__typename": "Episode",
+            "coverArt": {
+                "extractedColors": {
+                    "colorDark": {
+                        "hex": "#867272"
+                    }
+                }
+            }
+        }
+    },
+    "extensions": {}
 }
