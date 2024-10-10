@@ -197,16 +197,21 @@
   d="M11.472.279L2.583 10.686l-.887 4.786 4.588-1.625L15.173 3.44 11.472.279zM5.698 12.995l-2.703.957.523-2.819v-.001l2.18 1.863zm-1.53-2.623l7.416-8.683 2.18 1.862-7.415 8.683-2.181-1.862z"
   </path> </svg>`;
 
-  // src/app.tsx
+  // src/app.ts
   function main() {
     const rootStyle = document.createElement("style");
     document.head.appendChild(rootStyle);
-    const { fetchExtractedColors } = Spicetify.GraphQL.Definitions;
+    const {
+      fetchExtractedColorForTrackEntity,
+      fetchExtractedColorForEpisodeEntity
+    } = Spicetify.GraphQL.Definitions;
     const rootStyle2 = document.createElement("style");
     document.head.appendChild(rootStyle2);
-    const playbarConfig = JSON.parse(Spicetify.LocalStorage.get("playbarConfig")) || {
-      uriPassada: "https://i.scdn.co/image/ab67616d0000b2735011018cca4aa7091e08ae93",
-      uriAtual: "https://i.scdn.co/image/ab67616d0000b27342ffc7773e7f4ea48e5606a8",
+    const playbarConfig = JSON.parse(
+      Spicetify.LocalStorage.get("playbarConfig")
+    ) || {
+      uriPassada: "spotify:track:1yJoSwOtQPXcGf3Vzm5DSe",
+      uriAtual: "spotify:track:4QhwuCHetQCp96vpG9VgZW",
       corSpice: {
         VIBRANT: "#fe01a0",
         undefined: "#010001",
@@ -230,7 +235,9 @@
      --SpiceColors:${playbarConfig.corSpice[playbarConfig.escolhaSpice]};}`;
       meuEstilo.innerHTML = `.main-nowPlayingBar-container,.Root__now-playing-bar,.preview{
 	background-image: var( ${playbarConfig.inputCorSpice ? "--degradeCorSpice" : playbarConfig.input3color ? "--degrade3colors" : "--degradeCorPassada"}); }`;
-      console.log(`[playbar-dyn] atualizando cores ${playbarConfig.corAtual} | ${playbarConfig.corPassada} | ${playbarConfig.corSpice[playbarConfig.escolhaSpice]}`);
+      console.log(
+        `[playbar-dyn] atualizando cores ${playbarConfig.corAtual} | ${playbarConfig.corPassada} | ${playbarConfig.corSpice[playbarConfig.escolhaSpice]}`
+      );
       Spicetify.LocalStorage.set("playbarConfig", JSON.stringify(playbarConfig));
       return [rootStyle, rootStyle2, meuEstilo];
     }
@@ -254,7 +261,10 @@
         selectColors.options.add(opt);
       }
       btn.addEventListener("click", update);
-      selectColors.addEventListener("input", () => playbarConfig.escolhaSpice = selectColors.value);
+      selectColors.addEventListener(
+        "input",
+        () => playbarConfig.escolhaSpice = selectColors.value
+      );
       function selectState() {
         if (playbarConfig.input3color || playbarConfig.inputCorSpice) {
           selectColors.style.display = "block";
@@ -311,18 +321,21 @@
     document.head.appendChild(meuEstilo);
     let uriAtual = playbarConfig.uriPassada;
     async function fetchUris() {
-      var _a;
+      let query = verificarTipo();
       let uripassada = uriAtual;
-      uriAtual = ((_a = Spicetify.Player.data.item) == null ? void 0 : _a.images[0].url) || playbarConfig.uriAtual;
-      const catchColors = await Spicetify.GraphQL.Request(fetchExtractedColors, { uris: [uripassada, uriAtual] });
-      const coresPassada = catchColors.data.extractedColors[0].colorDark.hex;
-      const coresAtual = catchColors.data.extractedColors[1].colorDark.hex;
+      uriAtual = Spicetify.Player.data.item.uri || playbarConfig.uriAtual;
+      const catchColors = await Spicetify.GraphQL.Request(query, { uri: uriAtual });
+      console.log(catchColors);
+      const coresPassada = playbarConfig.corAtual;
+      const coresAtual = percorrerObjs(catchColors).hex;
       const coresSpice = await Spicetify.colorExtractor(uriAtual);
       playbarConfig.uriPassada = uripassada;
       playbarConfig.corAtual = coresAtual;
       playbarConfig.corPassada = coresPassada;
       playbarConfig.corSpice = coresSpice;
-      console.log(`[playbar-dyn]Pegando Uris: Cod Musica Atual ${uriAtual} cod musica passado ${uripassada}`);
+      console.log(
+        `[playbar-dyn]Pegando Uris: Cod Musica Atual ${uriAtual} cod musica passado ${uripassada}`
+      );
       return { coresAtual, coresPassada, coresSpice };
     }
     Spicetify.Player.addEventListener("songchange", async () => {
@@ -330,6 +343,30 @@
       update();
     });
     update();
+    let verificarTipo = () => {
+      var _a, _b, _c;
+      if (((_a = Spicetify.Player.data.item) == null ? void 0 : _a.type) == "episode") {
+        console.log((_b = Spicetify.Player.data.item) == null ? void 0 : _b.type);
+        return fetchExtractedColorForEpisodeEntity;
+      } else {
+        console.log((_c = Spicetify.Player.data.item) == null ? void 0 : _c.type);
+        return fetchExtractedColorForTrackEntity;
+      }
+    };
+    let percorrerObjs = (obj) => {
+      if (typeof obj != "object")
+        return;
+      if (obj.hasOwnProperty("hex")) {
+        return obj;
+      } else {
+        let o;
+        for (let i of Object.keys(obj)) {
+          o = percorrerObjs(obj[i]);
+          if (o == null ? void 0 : o.hex)
+            return o;
+        }
+      }
+    };
     function body() {
       let myBody = document.querySelector("body");
       let id;
@@ -353,7 +390,7 @@
   }
   var app_default = main;
 
-  // ../../../Users/emanuel/AppData/Local/Temp/spicetify-creator/index.jsx
+  // ../../Users/emanuel/AppData/Local/Temp/spicetify-creator/index.jsx
   (async () => {
     await app_default();
   })();
