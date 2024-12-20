@@ -37,6 +37,7 @@ function main() {
 
   /*porque?*/
   function update(): HTMLStyleElement[] {
+    const post = new Event("Post")
     rootStyle2.innerHTML = `:root{--curva:${playbarConfig.curva}deg}`;
     rootStyle.innerHTML = `:root{--corAtual:${playbarConfig.corAtual};
     --corPassada:${playbarConfig.corPassada};
@@ -55,7 +56,9 @@ function main() {
       } | ${playbarConfig.corSpice[playbarConfig.escolhaSpice]}`
     );
     Spicetify.LocalStorage.set("playbarConfig", JSON.stringify(playbarConfig));
+    Spicetify.Player.dispatchEvent(post);
     return [rootStyle, rootStyle2, meuEstilo];
+
   }
   async function esperarDOM() {
     let btn: HTMLInputElement = document.querySelector("#botao");
@@ -161,6 +164,7 @@ function main() {
     playbarConfig.corAtual = coresAtual;
     playbarConfig.corPassada = coresPassada;
     playbarConfig.corSpice = coresSpice;
+    
     console.log(
       `[playbar-dyn]Pegando Uris: Cod Musica Atual ${uriAtual} cod musica passado ${uripassada}`
     );
@@ -181,7 +185,7 @@ function main() {
       return  fetchExtractedColorForTrackEntity;
     }
   };
-  let percorrerObjs = ( obj): { hex: string } => {
+  let percorrerObjs = ( obj:any): { hex: string } => {
     if(typeof obj != "object") return
     if (obj.hasOwnProperty("hex")) {
       return obj;
