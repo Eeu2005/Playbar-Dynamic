@@ -2040,7 +2040,7 @@ declare namespace Spicetify {
 		/**
 		 * Collection of GraphQL definitions.
 		 */
-		const Definitions: Record<Query | string, any>;
+		const Definitions: Record<Query, any>;
 		/**
 		 * GraphQL query definitions. Subset of `Definitions` that are used as query requests.
 		 */

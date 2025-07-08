@@ -1,8 +1,6 @@
 import { myhtml, svg } from "./html";
 import {
   Configply,
-  type DataColorsEpisode,
-  type DataColorsTrack,
 } from "./types/type";
 function main() {
   const rootStyle = document.createElement("style");
@@ -10,6 +8,7 @@ function main() {
   const {
     fetchExtractedColorForTrackEntity,
     fetchExtractedColorForEpisodeEntity,
+    fetchExtractedColors
   } = Spicetify.GraphQL.Definitions;
   const rootStyle2 = document.createElement("style");
   document.head.appendChild(rootStyle2);
@@ -18,6 +17,8 @@ function main() {
   ) || {
     uriPassada: "spotify:track:1yJoSwOtQPXcGf3Vzm5DSe",
     uriAtual: "spotify:track:4QhwuCHetQCp96vpG9VgZW",
+    imgAtual:"https://i.scdn.co/image/ab67616d0000b2735011018cca4aa7091e08ae93",
+    imgPassada:"https://i.scdn.co/image/ab67616d0000b27342ffc7773e7f4ea48e5606a8",
     corSpice: {
       VIBRANT: "#fe01a0",
       undefined: "#010001",
@@ -37,6 +38,7 @@ function main() {
 
   /*porque?*/
   function update(): HTMLStyleElement[] {
+    const post = new Event("Post")
     rootStyle2.innerHTML = `:root{--curva:${playbarConfig.curva}deg}`;
     rootStyle.innerHTML = `:root{--corAtual:${playbarConfig.corAtual};
     --corPassada:${playbarConfig.corPassada};
@@ -50,12 +52,26 @@ function main() {
       : "--degradeCorPassada"
   }); }`;
     console.log(
-      `[playbar-dyn] atualizando cores ${playbarConfig.corAtual} | ${
-        playbarConfig.corPassada
-      } | ${playbarConfig.corSpice[playbarConfig.escolhaSpice]}`
+      ` [playbar-dyn] atualizando cores`
     );
+      console.log(
+        `%c Cor Atual ${playbarConfig.corAtual}`,
+        `background-color:${playbarConfig.corAtual}`
+      );
+       console.log(
+         `%c Cor Passada ${playbarConfig.corPassada}`,
+         `background-color:${playbarConfig.corPassada}`
+       );
+        console.log(
+          `%c Cor Spice ${playbarConfig.corSpice[playbarConfig.escolhaSpice]}`,
+          `background-color:${
+            playbarConfig.corSpice[playbarConfig.escolhaSpice]
+          }`
+        );
     Spicetify.LocalStorage.set("playbarConfig", JSON.stringify(playbarConfig));
+    Spicetify.Player.dispatchEvent(post);
     return [rootStyle, rootStyle2, meuEstilo];
+
   }
   async function esperarDOM() {
     let btn: HTMLInputElement = document.querySelector("#botao");
@@ -145,24 +161,35 @@ function main() {
 
   const meuEstilo = document.createElement("style");
   document.head.appendChild(meuEstilo);
-  let uriAtual = playbarConfig.uriPassada;
-
+  let imgAtual = playbarConfig.imgPassada
+  
   async function fetchUris() {
-    let query = verificarTipo();
-    let uripassada = uriAtual;
-    uriAtual = Spicetify.Player.data.item.uri || playbarConfig.uriAtual;
-    const catchColors: DataColorsTrack | DataColorsEpisode =
-      await Spicetify.GraphQL.Request(query, { uri: uriAtual });
+    let uriAtual = Spicetify.Player.data.item.uri || playbarConfig.uriAtual;
+     let uripassada:string;
+     let imgPassada:string;  
+     let  catchColors;
+    if(fetchExtractedColors){
+      imgPassada = imgAtual
+       uripassada = uriAtual;
+      imgAtual = Spicetify.Player.data.item.images[0].url
+       catchColors = await Spicetify.GraphQL.Request(fetchExtractedColors,{uris:[imgAtual]})
+    }else{
+    let query =  verificarTipo();
+     uripassada = uriAtual;
+    uriAtual = Spicetify.Player?.data?.item?.uri || playbarConfig.uriAtual;
+     catchColors = await Spicetify.GraphQL.Request(query, { uri: uriAtual });
+  }
     console.log(catchColors);
     const coresPassada = playbarConfig.corAtual;
     const coresAtual =percorrerObjs(catchColors).hex;
     const coresSpice = await Spicetify.colorExtractor(uriAtual);
     playbarConfig.uriPassada = uripassada;
     playbarConfig.corAtual = coresAtual;
+    playbarConfig.imgPassada = imgPassada
     playbarConfig.corPassada = coresPassada;
     playbarConfig.corSpice = coresSpice;
     console.log(
-      `[playbar-dyn]Pegando Uris: Cod Musica Atual ${uriAtual} cod musica passado ${uripassada}`
+      `[playbar-dyn]Pegando Uris: Cod Musica Atual ${uriAtual}  cod musica passado ${uripassada}`
     );
     return { coresAtual, coresPassada, coresSpice };
   }
@@ -181,7 +208,7 @@ function main() {
       return  fetchExtractedColorForTrackEntity;
     }
   };
-  let percorrerObjs = ( obj): { hex: string } => {
+  let percorrerObjs = ( obj:any): { hex: string } => {
     if(typeof obj != "object") return
     if (obj.hasOwnProperty("hex")) {
       return obj;
