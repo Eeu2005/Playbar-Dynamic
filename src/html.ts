@@ -1,15 +1,15 @@
 import { language } from "./types/type";
 const lingua: language = {
-	"pt-BR": ["Rotação do degrade (Em deg)", "cores", "tons das cores spicetify"],
-	"pt-PT": ["Rotação do degrade (Em deg)", "cores", "tons das cores spicetify"],
-	"es-ES": ["Rotation of gradient (deg)", "colors", "color shades of  Spicetify"]
+	"pt-BR": ["Rotação do degrade (Em deg)", "Cores", "Tons das cores spicetify"],
+	"pt-PT": ["Rotação do degrade (Em deg)", "Cores", "Tons das cores spicetify"],
+	"es-ES": ["Rotation of gradient (deg)", "colors", "Color shades of  Spicetify"]
 };
 
 export function myhtml() {
 	let localidade: string = Spicetify.Locale.getLocale();
 	let linguaEscolhida = lingua[localidade] ? lingua[localidade] : lingua["es-ES"];
 	const html: string = `<style>
-  input::-webkit-outer-spin-button,
+ input::-webkit-outer-spin-button,
   input::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
@@ -23,7 +23,8 @@ export function myhtml() {
 
   input,
   input:active {
-    padding: 0 !important;
+    color:var(--spice-text);
+    /* padding: 0 !important;*/
     outline: none;
     border-radius: 2px;
     border: none;
@@ -61,7 +62,7 @@ export function myhtml() {
 
   .divBotoes {
     width: 100%;
-    display: flex;
+    display: none;
     justify-content: space-evenly;
     align-items: center;
   }
@@ -82,7 +83,7 @@ export function myhtml() {
     width: 50px;
     background-color: var(--spice-main);
     border-radius: 5px;
-    margin-top: 50px;
+    margin-top: 10px;
   }
 
   #botao:active {
@@ -159,31 +160,60 @@ export function myhtml() {
   </div>
   <div class="divBotoes">
     <div>
-      <p>spicetify? </p>
+      <p>Spicetify? </p>
       <label for="inputCorSpice" id="switch">
         <input type="checkbox" name="cor_1" id="inputCorSpice" />
         <div class="myslider round"></div>
       </label>
     </div>
     <div>
-      <p>3 ${linguaEscolhida[1]}</p>
+      <p>3 {linguaEscolhida[1]}</p>
       <label for="tresColors" id="switch">
         <input type="checkbox" name="" id="tresColors">
         <div class="myslider round"></div>
       </label>
     </div>
     <div class="divSelect">
-      <p>${linguaEscolhida[2]}</p>
+      <p>{linguaEscolhida[2]}</p>
       <select name="colors" id="colors">
       </select>
     </div>
   </div>
 
   <input type="button" id="botao" value="save" />
+  <p>preview</p>
+<div class="preview" ></div>
 </div>
-<p>preview</p>`;
+
+`;
 	return html;
 }
+
+/**
+ * Essa Parte Foi temporaria mente Removida por questões de Aplicação
+ */
+const ParteRemovida = `<div class="divBotoes">
+    <div>
+      <p>Spicetify? </p>
+      <label for="inputCorSpice" id="switch">
+        <input type="checkbox" name="cor_1" id="inputCorSpice" />
+        <div class="myslider round"></div>
+      </label>
+    </div>
+    <div>
+      <p>3 {linguaEscolhida[1]}</p>
+      <label for="tresColors" id="switch">
+        <input type="checkbox" name="" id="tresColors">
+        <div class="myslider round"></div>
+      </label>
+    </div>
+    <div class="divSelect">
+      <p>{linguaEscolhida[2]}</p>
+      <select name="colors" id="colors">
+      </select>
+    </div>
+  </div>`
+
 export const svg = `<svg role="img" height="20" width="20" viewBox="0 0 16 16" fill="currentColor">
   <path
     d="M11.472.279L2.583 10.686l-.887 4.786 4.588-1.625L15.173 3.44 11.472.279zM5.698 12.995l-2.703.957.523-2.819v-.001l2.18 1.863zm-1.53-2.623l7.416-8.683 2.18 1.862-7.415 8.683-2.181-1.862z">

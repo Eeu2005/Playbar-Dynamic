@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "spicetify-creator",
+    "build": "spicetify-creator && spicetify apply",
     "build-local": "spicetify-creator --out=dist",
     "watch": "spicetify-creator --watch"
   },

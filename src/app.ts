@@ -88,7 +88,7 @@ function main() {
     numeros.value = playbarConfig.curva;
     for (let e of Object.keys(playbarConfig.corSpice)) {
       let opt = document.createElement("option");
-      opt.innerText = e == "undefined" ? "PROEMINENT" : e;
+      opt.innerText = e == "undefined" ? "PROMINENT" : e;
       opt.value = e;
       opt.selected = opt.value == playbarConfig.escolhaSpice;
       selectColors.options.add(opt);
@@ -148,13 +148,13 @@ function main() {
       button.active = true;
       Spicetify.PopupModal.display({
         title: "PlayBar Config",
-        content: myhtml() + meuElemento(),
+        content: myhtml(),
         isLarge: true,
       });
       esperarDOM();
       document
         .querySelector(".GenericModal__overlay")
-        .addEventListener("click", () => (button.active = false));
+
     },
     false
   );
@@ -172,7 +172,10 @@ function main() {
       imgPassada = imgAtual
        uripassada = uriAtual;
       imgAtual = Spicetify.Player.data.item.images[0].url
-       catchColors = await Spicetify.GraphQL.Request(fetchExtractedColors,{uris:[imgAtual]})
+       catchColors = await Spicetify.GraphQL.Request(fetchExtractedColors, {
+         imageUris: [imgAtual],
+         uris: [imgAtual],
+       });
     }else{
     let query =  verificarTipo();
      uripassada = uriAtual;
@@ -182,7 +185,15 @@ function main() {
     console.log(catchColors);
     const coresPassada = playbarConfig.corAtual;
     const coresAtual =percorrerObjs(catchColors).hex;
-    const coresSpice = await Spicetify.colorExtractor(uriAtual);
+    const coresSpice = await Spicetify.colorExtractor(uriAtual)?? {
+      VIBRANT: "#fe01a0",
+      undefined: "#010001",
+      DESATURATED: "#0c5b95",
+      LIGHT_VIBRANT: "#fe01a0",
+      DARK_VIBRANT: "#fe01a0",
+      VIBRANT_NON_ALARMING: "#fe01a0",
+      PROMINENT: "#010001",
+    }
     playbarConfig.uriPassada = uripassada;
     playbarConfig.corAtual = coresAtual;
     playbarConfig.imgPassada = imgPassada
@@ -242,6 +253,7 @@ function main() {
   globalThis.fetchUris = fetchUris;
   globalThis.update = update;
   globalThis.playbarConfig = playbarConfig;
+  globalThis.playbarConfigButton=button
 }
 
 export default main;
