@@ -5,15 +5,15 @@
         var playbarDdynamic = (() => {
   // src/html.ts
   var lingua = {
-    "pt-BR": ["Rota\xE7\xE3o do degrade (Em deg)", "cores", "tons das cores spicetify"],
-    "pt-PT": ["Rota\xE7\xE3o do degrade (Em deg)", "cores", "tons das cores spicetify"],
-    "es-ES": ["Rotation of gradient (deg)", "colors", "color shades of  Spicetify"]
+    "pt-BR": ["Rota\xE7\xE3o do degrade (Em deg)", "Cores", "Tons das cores spicetify"],
+    "pt-PT": ["Rota\xE7\xE3o do degrade (Em deg)", "Cores", "Tons das cores spicetify"],
+    "es-ES": ["Rotation of gradient (deg)", "colors", "Color shades of  Spicetify"]
   };
   function myhtml() {
     let localidade = Spicetify.Locale.getLocale();
     let linguaEscolhida = lingua[localidade] ? lingua[localidade] : lingua["es-ES"];
     const html = `<style>
-  input::-webkit-outer-spin-button,
+ input::-webkit-outer-spin-button,
   input::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
@@ -27,7 +27,8 @@
 
   input,
   input:active {
-    padding: 0 !important;
+    color:var(--spice-text);
+    /* padding: 0 !important;*/
     outline: none;
     border-radius: 2px;
     border: none;
@@ -65,7 +66,7 @@
 
   .divBotoes {
     width: 100%;
-    display: flex;
+    display: none;
     justify-content: space-evenly;
     align-items: center;
   }
@@ -86,7 +87,7 @@
     width: 50px;
     background-color: var(--spice-main);
     border-radius: 5px;
-    margin-top: 50px;
+    margin-top: 10px;
   }
 
   #botao:active {
@@ -163,29 +164,32 @@
   </div>
   <div class="divBotoes">
     <div>
-      <p>spicetify? </p>
+      <p>Spicetify? </p>
       <label for="inputCorSpice" id="switch">
         <input type="checkbox" name="cor_1" id="inputCorSpice" />
         <div class="myslider round"></div>
       </label>
     </div>
     <div>
-      <p>3 ${linguaEscolhida[1]}</p>
+      <p>3 {linguaEscolhida[1]}</p>
       <label for="tresColors" id="switch">
         <input type="checkbox" name="" id="tresColors">
         <div class="myslider round"></div>
       </label>
     </div>
     <div class="divSelect">
-      <p>${linguaEscolhida[2]}</p>
+      <p>{linguaEscolhida[2]}</p>
       <select name="colors" id="colors">
       </select>
     </div>
   </div>
 
   <input type="button" id="botao" value="save" />
+  <p>preview</p>
+<div class="preview" ></div>
 </div>
-<p>preview</p>`;
+
+`;
     return html;
   }
   var svg = `<svg role="img" height="20" width="20" viewBox="0 0 16 16" fill="currentColor">
@@ -272,7 +276,7 @@
       numeros.value = playbarConfig.curva;
       for (let e of Object.keys(playbarConfig.corSpice)) {
         let opt = document.createElement("option");
-        opt.innerText = e == "undefined" ? "PROEMINENT" : e;
+        opt.innerText = e == "undefined" ? "PROMINENT" : e;
         opt.value = e;
         opt.selected = opt.value == playbarConfig.escolhaSpice;
         selectColors.options.add(opt);
@@ -326,11 +330,11 @@
         button.active = true;
         Spicetify.PopupModal.display({
           title: "PlayBar Config",
-          content: myhtml() + meuElemento(),
+          content: myhtml(),
           isLarge: true
         });
         esperarDOM();
-        document.querySelector(".GenericModal__overlay").addEventListener("click", () => button.active = false);
+        document.querySelector(".GenericModal__overlay");
       },
       false
     );
@@ -338,7 +342,7 @@
     document.head.appendChild(meuEstilo);
     let imgAtual = playbarConfig.imgPassada;
     async function fetchUris() {
-      var _a, _b, _c;
+      var _a, _b, _c, _d;
       let uriAtual = Spicetify.Player.data.item.uri || playbarConfig.uriAtual;
       let uripassada;
       let imgPassada;
@@ -347,7 +351,10 @@
         imgPassada = imgAtual;
         uripassada = uriAtual;
         imgAtual = Spicetify.Player.data.item.images[0].url;
-        catchColors = await Spicetify.GraphQL.Request(fetchExtractedColors, { uris: [imgAtual] });
+        catchColors = await Spicetify.GraphQL.Request(fetchExtractedColors, {
+          imageUris: [imgAtual],
+          uris: [imgAtual]
+        });
       } else {
         let query = verificarTipo();
         uripassada = uriAtual;
@@ -357,7 +364,15 @@
       console.log(catchColors);
       const coresPassada = playbarConfig.corAtual;
       const coresAtual = percorrerObjs(catchColors).hex;
-      const coresSpice = await Spicetify.colorExtractor(uriAtual);
+      const coresSpice = (_d = await Spicetify.colorExtractor(uriAtual)) != null ? _d : {
+        VIBRANT: "#fe01a0",
+        undefined: "#010001",
+        DESATURATED: "#0c5b95",
+        LIGHT_VIBRANT: "#fe01a0",
+        DARK_VIBRANT: "#fe01a0",
+        VIBRANT_NON_ALARMING: "#fe01a0",
+        PROMINENT: "#010001"
+      };
       playbarConfig.uriPassada = uripassada;
       playbarConfig.corAtual = coresAtual;
       playbarConfig.imgPassada = imgPassada;
@@ -417,10 +432,11 @@
     globalThis.fetchUris = fetchUris;
     globalThis.update = update;
     globalThis.playbarConfig = playbarConfig;
+    globalThis.playbarConfigButton = button;
   }
   var app_default = main;
 
-  // ../../Users/user/AppData/Local/Temp/spicetify-creator/index.jsx
+  // ../../../EMANUG~1/AppData/Local/Temp/spicetify-creator/index.jsx
   (async () => {
     await app_default();
   })();
