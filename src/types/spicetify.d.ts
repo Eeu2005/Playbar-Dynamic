@@ -1295,7 +1295,7 @@ declare namespace Spicetify {
 			 * You can specify a string for simple text display
 			 * or a HTML element for interactive config/setting menu
 			 */
-			content: string | Element;
+			content: string | Element | React.JSX.Element;
 			/**
 			 * Bigger window
 			 */
@@ -1307,11 +1307,11 @@ declare namespace Spicetify {
 	}
 
 	/** React instance to create components */
-	const React: any;
+	const React: typeof import("react");
 	/** React DOM instance to render and mount components */
-	const ReactDOM: any;
+	const ReactDOM: typeof import("react-dom");
 	/** React DOM Server instance to render components to string */
-	const ReactDOMServer: any;
+	const ReactDOMServer: typeof import("react-dom/server");
 
 	/** Stock React components exposed from Spotify library */
 	namespace ReactComponent {
